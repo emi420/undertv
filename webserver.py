@@ -20,7 +20,7 @@ class TV:
     def next_ch(self):
         print "Next channel"
         self.current_ch = self.current_ch + 1
-        if self.current_ch == 4:
+        if self.current_ch == 7:
             self.current_ch = 1
         self.stop()
         self._play()
@@ -29,7 +29,7 @@ class TV:
         print "Prev channel"
         self.current_ch = self.current_ch - 1
         if self.current_ch == 0:
-            self.current_ch = 3
+            self.current_ch = 6 
         self.stop()
         self._play()
 
@@ -48,7 +48,7 @@ class TV:
         return
     
     def _play(self):
-        path = '/home/pi/under-tv/0' + str(self.current_ch) + '/01.mp4'
+        path = '/home/pi/undertv-server/content/0' + str(self.current_ch) + '/01.mp4'
         self.pipe = Popen(['omxplayer', path], stdout = PIPE, stderr = PIPE)
         print 'pid =',self.pipe.pid
         return
