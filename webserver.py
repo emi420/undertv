@@ -5,11 +5,16 @@
  of the GNU General Public License (GPL) Version 3.
 
  (c) 2012 Emilio Mariscal (emi420 [at] gmail.com)
-
+ 
+ Module description:
+ 
+    Remote TV controller
+ 
 '''
 
 import string
-import os, sys
+import os, sys, signal
+from contentdl import ContentDownloader
 from subprocess import Popen, PIPE
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
@@ -23,16 +28,20 @@ class Content:
     
     def update(self):
         self.list = os.listdir(self.source)
+        for i in self.list:
+            if "log" in i:
+               self.list.remove(i) 
         self.count = len(self.list)
         
     def get(self, id):
-        return self.source + self.list[id]
+        return self.list[id]
         
 class TV:
 
     def __init__(self):
         self.current_vol = 40
         self.status = 0
+        self.downloadPID = 0
         self.current_ch = 0
         self.content = Content()
 
@@ -41,6 +50,7 @@ class TV:
         self.current_ch = self.current_ch + 1
         if self.current_ch == self.content.count:
             self.current_ch = 0
+            self.content.update()
         print "#" + str(self.current_ch)     
         self._play()
 
@@ -49,6 +59,7 @@ class TV:
         self.current_ch = self.current_ch - 1
         if self.current_ch < 0:
             self.current_ch = self.content.count - 1 
+            self.content.update()
         print "#" + str(self.current_ch)    
         self._play()
 
@@ -76,20 +87,39 @@ class TV:
             print "Power Off"
             self.status = 0
             self._stop()
-        
+                    
     def _play(self):
         path = self.content.get(self.current_ch)
         self._stop()
-        self._player(path)
+        pipe = self._player(path, self.content.source)
 
     def _stop(self):
         # FIXME CHECK
         os.system('pkill omxplayer')
+        if self.downloadPID > 0:
+            try:
+                os.kill(self.downloadPID, signal.SIGKILL)
+            except:
+                pass
     
-    def _player(self, path):
+    def _player(self, path, source):
         print "Play: " + path
-        pipe = Popen(['omxplayer', path], stdout = PIPE, stderr = PIPE)
-        print 'pid =',pipe.pid
+        file_path = source + path
+        if file_path.find(".part") > -1:
+            os.chdir(source)
+            video_id = path.replace(".part","").replace(".mp4","").replace(".flv","").replace(".video","")
+            print "File " + file_path + " exists, full download (videoid=" + video_id + ")"
+            self.downloadPID = self._fullDownload(video_id)
+        
+        ''' Add -r option to omxplayer if you want fullscreen mode '''
+        pipe = Popen(['omxplayer', '-3','-w', path], stdout = PIPE, stderr = PIPE)
+
+        print 'Player pid: ',pipe.pid
+        return pipe.pid
+
+    def _fullDownload(self, video_id):
+        p = Popen(['youtube-dl', "http://youtube.com/watch?v=" + video_id])
+        return p.pid
 
 class TVHandler(BaseHTTPRequestHandler):
 
@@ -117,6 +147,8 @@ class TVHandler(BaseHTTPRequestHandler):
 
         elif path == "/power":
             TVHandler.tv.power()
+        
+        self.wfile.write("1")
            
         return
         
@@ -133,7 +165,7 @@ def main():
         server = HTTPServer(('', 80), TVHandler)
         print 'Started Under TV httpserver'
         server.serve_forever()
-
+    
    except KeyboardInterrupt:
         print '^C received, shutting down server'
         server.socket.close()
