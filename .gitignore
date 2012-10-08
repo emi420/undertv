@@ -1,4 +1,5 @@
 omxplayer.log
 omxplayer.old.log
 content
+*.pyc
 .gitignore
