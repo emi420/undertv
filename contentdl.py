@@ -8,7 +8,7 @@
  
  Module description:
  
-    Download random video content
+    Download video content
  
 '''
 
@@ -19,52 +19,89 @@ import random
 import json
 
 from command import Run
+from models import Data
 
 class ContentDownloader:
 
    def __init__(self):
-        self.keywords = []
-        self.random = True
+        self.data = Data()
+        self.current_content = 0;
+        self.current_playlist = 0;
         self.dest = "/home/pi/undertv-server/content/download/"
+        self.playlists = self.data.get("playlist")
         self.connector = YouTubeConnector()
 
    def start(self):
-        if self.random:
-            print "Start searching ..."
-            video_list = self.connector.search(self.keywords)
-            if video_list:
-                (video_url, video_id) = self.connector.choiceRandom(video_list)
-            else:
-                self.start()
-            if self._videoExists(video_id):
-                  # FIXME CHECK
-                  self.start()        
-            else:
-                  print "Downloading video: " + video_url            
-                  self.connector._download(video_url, video_id, self.dest)    
-                  self.start()
+        print "Start searching ..."
+        restart = False
+
+        # Get video index
+        video_index = self.current_content
+        
+        # Get video list from playlist
+        video_list = self.connector.get(self.playlists[self.current_playlist])        
+        
+        # Get video data from playlist using index
+        if video_list:
+            (video_url, video_id) = self.connector.choice(video_list, video_index)
+        else:
+            restart = True
+        
+        if self._videoExists(video_id):
+              # FIXME CHECK
+              restart = True
+        else:
+              # Destination
+              dest = self.dest + str(self.current_playlist) + "/"
+              
+              print "Downloading video: " + video_url
+              print " To:" + dest
+
+              # Make dir
+              if not os.path.exists(dest):
+                  os.mkdir(dest)
+
+              # Create a process to download video
+              self.connector._download(video_url, video_id, dest)   
+        
+        # When download has finished ...
+        
+        self.current_content = self.current_content + 1
+        if self.current_content == 2:
+               self.current_content = 0
+               self.current_playlist = self.current_playlist + 1;
+
+        if self.current_playlist < len(self.playlists):
+            restart = True
+         
+        if restart:
+            self.start()
+               
+   def getCurrent(self):
+        # FIXME CHECK
+        # Get current video from playlist 
+        return self.playlists[self.current_playlist][self.current_content]            
                
    def _videoExists(self, name):
         dest_path = self.dest + name            
         if os.path.exists(dest_path) or \
-           os.path.exists(dest_path + ".part") or \
            os.path.exists(dest_path + ".mp4") or \
            os.path.exists(dest_path + ".flv") or \
-           os.path.exists(dest_path + ".video") or \
-           os.path.exists(dest_path + ".mp4.part") or \
-           os.path.exists(dest_path + ".flv.part") or \
-           os.path.exists(dest_path + ".video.part"):
+           os.path.exists(dest_path + ".video"):
            return True
         else:
            return False
 
 class YouTubeConnector:
+    ''' Check playlists and download videos '''
+
     def __init__(self):
-        self.source = "https://gdata.youtube.com/feeds/api/videos?q=%keywords%&orderby=published&max-results=10&v=2&alt=json"
+        self.source = "https://gdata.youtube.com/feeds/api/playlists/%playlistid%?v=2&alt=json"
     
-    def search(self, keywords):
-        url = self.source.replace('%keywords%',random.choice(keywords))
-        print "Downloading result: " + url
+    # Get a playlist
+    def get(self, playlist):
+        url = self.source.replace('%playlistid%',playlist[0])
+        print "Downloading: " + url
         try:
             f = urllib.urlopen(url)        
             result = f.read()
@@ -73,26 +110,23 @@ class YouTubeConnector:
         except:
             "Error"
         
-    def choiceRandom(self, video_list):
-        video = random.choice(video_list['feed']['entry'])
+    # Choice a video
+    def choice(self, video_list, index):
+        video = video_list['feed']['entry'][index]
         video_url = video['media$group']['media$player']['url']
         video_id = video['media$group']['yt$videoid']["$t"]
         return (video_url, video_id)
     
+    # Download to local disk
     def _download(self, video_url, video_id, dest):
         os.chdir(dest)
         run = Run()
-        run.command(['youtube-dl', video_url], shell = False, timeout = 300)
+        run.command(['youtube-dl', video_url], shell = False, timeout = -1)
         
 
 def main():
    print "Initializing content downloader..."
-   
    cdl = ContentDownloader()
-   # Sample keywords
-   cdl.keywords = ["rock","danza","expresion","arte","baile","gracioso","divertido","perros","animales","naturaleza","charly garcia","david lynch","cosas locas","mate","animacion","paralell world","cualca","stand up","monologos","aunque usted no lo crea","ciudad","tecnologia"]
-
-   cdl.random = True
    cdl.start()
      
 if __name__ == '__main__':
