@@ -133,7 +133,7 @@ class TV:
         ''' Add -r option to omxplayer if you want fullscreen mode '''
         try:
             time = str(json.loads(self.video['data'])['time'])
-            self.proc = Popen(['omxplayer', '-3','-w','-l ' + time, file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
+            self.proc = Popen(['omxplayer','-l ' + time, file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
         except:
             pass
 
