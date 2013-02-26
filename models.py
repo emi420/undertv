@@ -8,7 +8,7 @@
  
  Module description:
  
-    Data model
+    Data
  
 '''
 import sqlite3
@@ -29,14 +29,14 @@ class Data:
 
     def filter(self, key, value):
         curs = self.conn.cursor()
-        cmd = "select value from data where key='%s' and value='%s'" % (key, value)
+        cmd = "select id, value from data where key='%s' and value='%s'" % (key, value)
         result = curs.execute(cmd)
         return result.fetchall()
         
     def get(self, key):
         # FIXME CHECK
         curs = self.conn.cursor()
-        cmd = "select value from data where key='%s'" % key
+        cmd = "select id, value from data where key='%s'" % key
         result = curs.execute(cmd)
         return result.fetchall()
 
@@ -45,10 +45,10 @@ class Data:
         cmd = "insert into data (key, value) values ('%s,%s')" % (key, value)
         return curs.execute(cmd)
 
-    def update(self, key, value):
-        # FIXME CHECK
+    def update(self, id, value):
         curs = self.conn.cursor()
-        cmd = "update data set value=? where key='%s'" % key
-        return curs.execute(cmd)
+        cmd = "update data set value=? where id=?"
+        curs.execute(cmd, [value, id])
+        self.conn.commit()
 
     

@@ -26,16 +26,17 @@ class Content:
 
     def __init__(self):
         self.data = Data()
-        self.playlists = map(lambda x: json.loads(x[0]), self.data.get("playlist"))
+        self.playlists = map(lambda x: {'id':x[0],'data':x[1]}, self.data.get("playlist"))
         self.count = len(self.playlists)
         self.list = []
         self.source = "/home/pi/undertv-server/content/download/"
     
     def update(self):
-        self.list = map(lambda x: x[0], self.data.get("video"))
+        self.list = map(lambda x: {'id':x[0],'data':x[1]}, self.data.get("video"))
 
     def getByPosition(self, position):
-        return json.loads(filter(lambda x: json.loads(x)["position"] == str(position).replace(' ',''), self.list)[0])
+        pos = str(position).replace(' ','')
+        return filter((lambda x: json.loads(x['data'])["position"] == pos), self.list)[0]
 
 class TV:
 
@@ -98,14 +99,17 @@ class TV:
             self._stop()
                     
     def _play(self):
-        current = self.content.getByPosition(self.current)
+        self.video = self.content.getByPosition(self.current)
         self._stop()
         self.startTime = time()
-        self._player(current['name'], self.content.source)
+        self._player( json.loads(self.video['data'])['name'], self.content.source)
 
     def _stop(self):
         self.time = int(time() - self.startTime)
         print "Stopped at " + str(self.time) + " s"
+        video = json.loads(self.video['data'])
+        video['time'] = self.time
+        self.content.data.update(self.video['id'], json.dumps(video))
         self._sendCommand("q")
         if self.downloadPID > 0:
             try:
@@ -124,7 +128,8 @@ class TV:
         
         ''' Add -r option to omxplayer if you want fullscreen mode '''
         try:
-            self.proc = Popen(['omxplayer', '-3','-w', file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
+            time = str(json.loads(self.video['data'])['time'])
+            self.proc = Popen(['omxplayer', '-3','-w','-l ' + time, file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
         except:
             pass
 
