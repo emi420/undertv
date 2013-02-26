@@ -8,7 +8,7 @@
  
  Module description:
  
-    Remote TV controller
+    TV server
  
 '''
 
@@ -78,14 +78,16 @@ class TV:
         print "Volume up " +  str(self.current_vol) + "%"
         if self.current_vol > 200:
            self.current_vol = 200
-        #self._sendCommand('+')
+        # FIXME CHECK
+        self._sendCommand('+')
 
     def vol_down(self):
         self.current_vol = self.current_vol - 10
         print "Volume down " +  str(self.current_vol) + "%"
         if self.current_vol < -100:
            self.current_vol = -100
-        #self._sendCommand('-')
+        # FIXME CHECK
+        self._sendCommand('-')
 
     def power(self):
         if self.status == 0:
@@ -130,10 +132,19 @@ class TV:
             print "File " + file_path + " exists, downloading ... (videoid=" + video_id + ")"
             self.downloadPID = self._fullDownload(video_id)
         
-        ''' Add -r option to omxplayer if you want fullscreen mode '''
         try:
             time = str(json.loads(self.video['data'])['time'])
             self.proc = Popen(['omxplayer','-l ' + time, file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
+
+            # TODO: when finish playing, set watched = true, delete file 
+            #       and download the next item in the playlist.
+            #
+            # video = json.loads(self.video['data'])
+            # video['watched'] = true
+            # self.content.data.update(self.video['id'], json.dumps(video))
+            # os.remove(file_path)
+            # contentdl.start()
+
         except:
             pass
 

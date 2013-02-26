@@ -8,14 +8,14 @@
  
  Module description:
  
-    Data
+    Data connection
  
 '''
 import sqlite3
 
 class Data:
     def __init__(self):
-        self.conn = sqlite3.connect('data.sql3')
+        self.conn = sqlite3.connect('/home/pi/undertv-server/data.sql3')
         curs = self.conn.cursor()
         cmd = "SELECT name FROM sqlite_master WHERE type='table' AND name='data';"
         data_table = curs.execute(cmd).fetchone()
@@ -42,8 +42,9 @@ class Data:
 
     def create(self, key, value):
         curs = self.conn.cursor()
-        cmd = "insert into data (key, value) values ('%s,%s')" % (key, value)
-        return curs.execute(cmd)
+        cmd = "insert into data (key, value) values (?,?)"
+        curs.execute(cmd, [key, value])
+        self.conn.commit()
 
     def update(self, id, value):
         curs = self.conn.cursor()
