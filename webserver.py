@@ -108,7 +108,11 @@ class TV:
         self.time = int(time() - self.startTime)
         print "Stopped at " + str(self.time) + " s"
         video = json.loads(self.video['data'])
-        video['time'] = self.time
+        try:
+            videoTime = video['time']
+        except:
+            videoTime = 0
+        video['time'] = videoTime + self.time 
         self.content.data.update(self.video['id'], json.dumps(video))
         self._sendCommand("q")
         if self.downloadPID > 0:
