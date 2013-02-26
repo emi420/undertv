@@ -4,3 +4,5 @@ content
 *.pyc
 .gitignore
 *.bkp
+*.DS_Store
+
