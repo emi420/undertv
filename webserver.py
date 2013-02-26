@@ -15,6 +15,7 @@
 import string
 import os, sys, signal
 import json
+from time import time
 from contentdl import ContentDownloader
 from subprocess import Popen, PIPE
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
@@ -34,21 +35,24 @@ class Content:
         self.list = map(lambda x: x[0], self.data.get("video"))
 
     def getByPosition(self, position):
-        # FIXME: 
-        # check data.sql3 
-        try:
-            return json.loads(filter(lambda x: json.loads(x)["position"] == str(position).replace(' ',''), self.list)[0])
-        except:
-            import pdb; pdb.set_trace()
+        return json.loads(filter(lambda x: json.loads(x)["position"] == str(position).replace(' ',''), self.list)[0])
 
 class TV:
 
     def __init__(self):
         self.current_vol = 40
         self.status = 0
+        self.startTime = time()
         self.downloadPID = 0
+        self.proc = None
         self.current = [0,0]
         self.content = Content()
+    
+    def _sendCommand(self, cmd):
+        try:
+            self.proc.communicate(cmd)
+        except:
+            pass
 
     def next_ch(self):
         print "Next channel"
@@ -71,16 +75,16 @@ class TV:
     def vol_up(self):
         self.current_vol = self.current_vol + 10
         print "Volume up " +  str(self.current_vol) + "%"
-        if self.current_vol > 100:
-           self.current_vol = 100
-        # Change volume here
+        if self.current_vol > 200:
+           self.current_vol = 200
+        #self._sendCommand('+')
 
     def vol_down(self):
         self.current_vol = self.current_vol - 10
         print "Volume down " +  str(self.current_vol) + "%"
-        if self.current_vol < 0:
-           self.current_vol = 0
-        # Change volume here
+        if self.current_vol < -100:
+           self.current_vol = -100
+        #self._sendCommand('-')
 
     def power(self):
         if self.status == 0:
@@ -96,11 +100,13 @@ class TV:
     def _play(self):
         current = self.content.getByPosition(self.current)
         self._stop()
-        pipe = self._player(current['name'], self.content.source)
+        self.startTime = time()
+        self._player(current['name'], self.content.source)
 
     def _stop(self):
-        # FIXME CHECK
-        os.system('pkill omxplayer')
+        self.time = int(time() - self.startTime)
+        print "Stopped at " + str(self.time) + " s"
+        self._sendCommand("q")
         if self.downloadPID > 0:
             try:
                 os.kill(self.downloadPID, signal.SIGKILL)
@@ -117,10 +123,10 @@ class TV:
             self.downloadPID = self._fullDownload(video_id)
         
         ''' Add -r option to omxplayer if you want fullscreen mode '''
-        pipe = Popen(['omxplayer', '-3','-w', file_path], stdout = PIPE, stderr = PIPE)
-
-        print 'Player pid: ',pipe.pid
-        return pipe.pid
+        try:
+            self.proc = Popen(['omxplayer', '-3','-w', file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
+        except:
+            pass
 
     def _fullDownload(self, video_id):
         p = Popen(['youtube-dl', "http://youtube.com/watch?v=" + video_id])

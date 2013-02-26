@@ -3,3 +3,4 @@ omxplayer.old.log
 content
 *.pyc
 .gitignore
+*.bkp
