@@ -15,7 +15,7 @@ import sqlite3
 
 class Data:
     def __init__(self):
-        self.conn = sqlite3.connect('/home/pi/undertv-server/data.sql3')
+        self.conn = sqlite3.connect('/home/pi/undertv-server/data.sql3', check_same_thread = False)
         curs = self.conn.cursor()
         cmd = "SELECT name FROM sqlite_master WHERE type='table' AND name='data';"
         data_table = curs.execute(cmd).fetchone()

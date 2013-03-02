@@ -83,7 +83,7 @@ class ContentDownloader:
                self.current_content = 0
                self.current_playlist = self.current_playlist + 1;
                # FIXME CHECK
-               # If the item is the last one, go back to the first item (?)
+               # If the item is the last one, go back to the first item?
 
 
         if self.current_playlist < len(self.playlists):
