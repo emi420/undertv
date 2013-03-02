@@ -17,9 +17,19 @@ import os
 import urllib
 import random
 import json
+import re
+from subprocess import Popen, PIPE
 
 from command import Run
 from models import Data
+
+def get_duration(file_path):
+    regex = re.compile("length (.*)")
+    print 'Getting info from video: ' + file_path
+    proc = Popen(['omxplayer','-i', file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
+    output = proc.stdout.read()
+    duration = regex.findall(output)[0]
+    return duration
 
 class ContentDownloader:
 
@@ -27,7 +37,7 @@ class ContentDownloader:
         self.data = Data()
         self.current_content = 0;
         self.current_playlist = 0;
-        self.dest = "/home/pi/undertv-server/content/download/"
+        self.dest = "content/download/"
         self.playlists = self.data.get("playlist")
         self.connector = YouTubeConnector()
 
@@ -48,8 +58,10 @@ class ContentDownloader:
         else:
             restart = True
         
+        print "Video id: " + video_id
+        
         if self._videoExists(video_id):
-              # FIXME CHECK
+              print "Video exists"
               restart = True
         else:
               # Destination
@@ -65,19 +77,19 @@ class ContentDownloader:
               # Create a process to download video
               self.connector._download(video_url, video_id, dest)   
         
-        print "Download finished."
-
-        video = '{"watched":false'
-        video = video + ', "position": "[' + str(self.current_playlist)
-        video = video + ',' + str(video_index) + ']"'
-        video = video + ', "name": "' + video_id + '"'
-        video = video + ', "time": "0"'
-        
-        # TODO: get video duration
-        video = video + ', "duration": "0"}'
-        
-        self.data.create("video", video)
-                
+              print "Download finished."
+     
+              video = '{"watched":false'
+              video = video + ', "position": "[' + str(self.current_playlist)
+              video = video + ',' + str(video_index) + ']"'
+              video = video + ', "name": "' + video_id + '"'
+              video = video + ', "time": "0"'
+            
+              duration = get_duration(dest)
+              video = video + ', "duration": ' + str(duration) + ' }'
+            
+              self.data.create("video", video)
+                    
         self.current_content = self.current_content + 1
         if self.current_content == 2:
                self.current_content = 0
@@ -85,9 +97,11 @@ class ContentDownloader:
                # FIXME CHECK
                # If the item is the last one, go back to the first item?
 
-
+        print "Playlist " + str(self.current_playlist) + "/" + str(len(self.playlists))
         if self.current_playlist < len(self.playlists):
             restart = True
+        else:
+            restart = False
          
         if restart:
             self.start()
@@ -98,7 +112,7 @@ class ContentDownloader:
         return self.playlists[self.current_playlist][self.current_content]            
                
    def _videoExists(self, name):
-        dest_path = self.dest + name            
+        dest_path = self.dest + str(self.current_playlist) + "/" + name            
         if os.path.exists(dest_path) or \
            os.path.exists(dest_path + ".mp4") or \
            os.path.exists(dest_path + ".flv") or \
