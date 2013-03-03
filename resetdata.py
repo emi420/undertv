@@ -30,7 +30,7 @@ def get_duration(video):
 
 def reset_data():
     data = Data()
-    videos = map(lambda x: {'id':x[0],'data':x[1]}, data.get("video"))
+    videos = map(lambda x: {'id':x[0],'data':x[1]}, data.all("video"))
     for item in videos:
         video = json.loads(item['data'])
         video['time'] = 0

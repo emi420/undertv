@@ -2,7 +2,7 @@ omxplayer.log
 omxplayer.old.log
 content/download/*
 *.pyc
-.gitignore
 *.bkp
 *.DS_Store
+models.py
 data.sql3

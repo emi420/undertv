@@ -25,13 +25,13 @@ class Content:
 
     def __init__(self):
         self.data = Data()
-        self.playlists = map(lambda x: {'id':x[0],'data':x[1]}, self.data.get("playlist"))
+        self.playlists = map(lambda x: {'id':x[0],'data':x[1]}, self.data.all("playlist"))
         self.count = len(self.playlists)
         self.list = []
         self.source = "content/download/"
     
     def update(self):
-        self.list = map(lambda x: {'id':x[0],'data':x[1]}, self.data.get("video"))
+        self.list = map(lambda x: {'id':x[0],'data':x[1]}, self.data.all("video"))
 
     def getByPosition(self, position):
         pos = str(position).replace(' ','')
@@ -119,7 +119,6 @@ class TV:
             self.timer.cancel()
         
         self.time = int(time() - self.startTime)
-        print "Stopped at " + str(self.time)
         video = json.loads(self.video['data'])
         try:
             videoTime = int(video['time'])
@@ -143,9 +142,9 @@ class TV:
         renamed_file_path = self.content.source + str(self.current[0]) + "/" + video['name'] + "-watched.flv"
         if os.path.exists(file_path):
             os.rename(file_path, renamed_file_path)
-            # FIXME CHECK: run ContentDownloader as a background process
-            #cdl = ContentDownloader()
-            #cdl.start()
+            # TODO: run ContentDownloader as a background process
+            # cdl = ContentDownloader()
+            # cdl.start(background=true)
         
         # FIXME CHECK: delete original file and create a empty renamed file
         # os.remove(file_path)
@@ -168,13 +167,7 @@ class TV:
 
             file_path = source + str(self.current[0]) + "/" + path + ".flv"
             print "Play: " + file_path
-    
-            if file_path.find(".part") > -1:
-                os.chdir(source)
-                video_id = path.replace(".part","").replace(".mp4","").replace(".flv","").replace(".video","")
-                print "File " + file_path + " exists, downloading ... (videoid=" + video_id + ")"
-                self.downloadPID = self._fullDownload(video_id)
-            
+                
             time = video['time']
             duration = video['duration']
             remaining = int(duration) - int(time)
@@ -193,6 +186,3 @@ class TV:
             print "This video was watched, play next, #" + str(self.current);
             self._play()
 
-    def _fullDownload(self, video_id):
-        p = Popen(['youtube-dl', "http://youtube.com/watch?v=" + video_id])
-        return p.pid

@@ -14,9 +14,12 @@
 import sqlite3
 from settings import settings
 
+BASE_PATH = settings['BASE_PATH']
+DATABASE = settings['DATABASE']
+
 class Data:
     def __init__(self):
-        self.conn = sqlite3.connect(settings['BASE_PATH'] + settings['DATABASE'], check_same_thread = False)
+        self.conn = sqlite3.connect( BASE_PATH + DATABASE , check_same_thread = False)
         curs = self.conn.cursor()
         cmd = "SELECT name FROM sqlite_master WHERE type='table' AND name='data';"
         data_table = curs.execute(cmd).fetchone()
@@ -34,12 +37,19 @@ class Data:
         result = curs.execute(cmd)
         return result.fetchall()
         
-    def get(self, key):
+    def all(self, key):
         # FIXME CHECK
         curs = self.conn.cursor()
         cmd = "select id, value from data where key='%s'" % key
         result = curs.execute(cmd)
         return result.fetchall()
+
+    def get(self, id):
+        # FIXME CHECK
+        curs = self.conn.cursor()
+        cmd = "select id, value from data where id='%s'" % id
+        result = curs.execute(cmd)
+        return result.fetch()
 
     def create(self, key, value):
         curs = self.conn.cursor()

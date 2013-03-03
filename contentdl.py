@@ -43,7 +43,7 @@ class ContentDownloader:
         self.current_content_limit = settings['CONTENT_DOWNLOADER_LIMIT'];
         self.current_playlist = 0;
         self.dest = settings['BASE_PATH'] + "content/download/"
-        self.playlists = self.data.get("playlist")
+        self.playlists = self.data.all("playlist")
         self.connector = YouTubeConnector()
 
    def start(self):
