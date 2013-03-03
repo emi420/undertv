@@ -9,25 +9,25 @@ A television box for the internet citizen
 
 ## How to run and test the project
 
-0. Check your settings
+1) Check your settings
 
 Edit settings.py file
 
-1. Install sample data:
+2) Install sample data:
 
 You can edit sampledata.py and add your own YouTube playlists
 
 $ python sampledata.py
 
-2. Download content
+3) Download content
 
 $ python contentdownloader.py
 
-3. Run server
+4) Run server
 
 $ python webserver.py
 
-4. Run commands from any browser:
+5) Run commands from any browser:
 
 http://< Raspberry PI IP address >/power
 http://< Raspberry PI IP address >/next_ch
