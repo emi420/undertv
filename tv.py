@@ -35,6 +35,7 @@ class Content:
 
     def getByPosition(self, position):
         pos = str(position).replace(' ','')
+        print "Reading info of video " + pos
         return filter((lambda x: json.loads(x['data'])["position"] == pos), self.list)[0]
 
 class TV:
@@ -104,9 +105,13 @@ class TV:
         self.timer.cancel()
                     
     def _play(self):
-        self.video = self.content.getByPosition(self.current)
-        self.startTime = time()
-        self._player( json.loads(self.video['data'])['name'], self.content.source)
+	try:
+            self.video = self.content.getByPosition(self.current)
+            self.startTime = time()
+            self._player( json.loads(self.video['data'])['name'], self.content.source)
+        except:
+            self.current[1] = 0
+            self.next_ch()
 
     def _stop(self):
     
@@ -172,7 +177,7 @@ class TV:
             
             time = video['time']
             duration = video['duration']
-            remaining = duration - time
+            remaining = int(duration) - int(time)
             
             self.timer = Timer(remaining, self._watched)
             self.timer.start()
