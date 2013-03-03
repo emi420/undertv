@@ -9,7 +9,7 @@ A television box for the internet citizen
 
 ## How to run and test the project
 
-0. Check yotr settings
+0. Check your settings
 
 Edit settings.py file
 
