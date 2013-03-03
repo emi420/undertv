@@ -16,11 +16,12 @@ import json
 import re
 from subprocess import Popen, PIPE
 from data import Data
+from settings import settings
 
 def get_duration(video):
     regex = re.compile("length (.*)")
     position = json.loads(video['position'])[0]
-    file_path = 'content/download/' + str(position) + '/' + video['name'] + ".flv"
+    file_path = settings['BASE_PATH'] + 'content/download/' + str(position) + '/' + video['name'] + ".flv"
     print 'Getting info from video: ' + file_path
     proc = Popen(['omxplayer','-i', file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
     output = proc.stdout.read()

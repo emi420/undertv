@@ -19,16 +19,20 @@ import random
 import json
 import re
 from subprocess import Popen, PIPE
-
 from command import Run
-from models import Data
+from data import Data
+from settings import settings
 
 def get_duration(file_path):
-    regex = re.compile("length (.*)")
-    print 'Getting info from video: ' + file_path
-    proc = Popen(['omxplayer','-i', file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
-    output = proc.stdout.read()
-    duration = regex.findall(output)[0]
+    duration = 0
+    try:
+        regex = re.compile("length (.*)")
+        print 'Getting info from video: ' + file_path
+        proc = Popen(['omxplayer','-i', file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
+        output = proc.stdout.read()
+        duration = regex.findall(output)[0]
+    except:
+        pass
     return duration
 
 class ContentDownloader:
@@ -36,8 +40,9 @@ class ContentDownloader:
    def __init__(self):
         self.data = Data()
         self.current_content = 0;
+        self.current_content_limit = settings['CONTENT_DOWNLOADER_LIMIT'];
         self.current_playlist = 0;
-        self.dest = "content/download/"
+        self.dest = settings['BASE_PATH'] + "content/download/"
         self.playlists = self.data.get("playlist")
         self.connector = YouTubeConnector()
 
@@ -49,7 +54,10 @@ class ContentDownloader:
         video_index = self.current_content
         
         # Get video list from playlist
-        video_yt_id = str(json.loads(self.playlists[self.current_playlist][1])['playlist'])
+        try:
+            video_yt_id = str(json.loads(self.playlists[self.current_playlist][1])['playlist'])
+        except:
+            import pdb; pdb.set_trace()
         video_list = self.connector.get(video_yt_id)      
         
         # Get video data from playlist using index
@@ -60,9 +68,8 @@ class ContentDownloader:
         
         print "Video id: " + video_id
         
-        if self._videoExists(video_id):
+        if self._videoExists(video_id) or self._videoExists(video_id + "-watched"):
               print "Video exists"
-              restart = True
         else:
               # Destination
               dest = self.dest + str(self.current_playlist) + "/"
@@ -75,7 +82,7 @@ class ContentDownloader:
                   os.mkdir(dest)
 
               # Create a process to download video
-              self.connector._download(video_url, video_id, dest)   
+              self.connector._download(video_url, dest)   
         
               print "Download finished."
      
@@ -85,17 +92,22 @@ class ContentDownloader:
               video = video + ', "name": "' + video_id + '"'
               video = video + ', "time": "0"'
             
-              duration = get_duration(dest)
+              duration = get_duration(dest + video_id + '.flv')
               video = video + ', "duration": ' + str(duration) + ' }'
             
               self.data.create("video", video)
                     
         self.current_content = self.current_content + 1
-        if self.current_content == 2:
+
+        if self._videoExists(video_id + "-watched"):
+            self.current_content_limit = self.current_content_limit + 1
+            
+        if self.current_content == self.current_content_limit:
                self.current_content = 0
+               self.current_content_limit = settings['CONTENT_DOWNLOADER_LIMIT']
                self.current_playlist = self.current_playlist + 1;
-               # FIXME CHECK
-               # If the item is the last one, go back to the first item?
+               # TODO:
+               # If the item is the last one, go back to the first item
 
         print "Playlist " + str(self.current_playlist) + "/" + str(len(self.playlists))
         if self.current_playlist < len(self.playlists):
@@ -147,7 +159,7 @@ class YouTubeConnector:
         return (video_url, video_id)
     
     # Download to local disk
-    def _download(self, video_url, video_id, dest):
+    def _download(self, video_url, dest):
         os.chdir(dest)
         run = Run()
         run.command(['youtube-dl', video_url], shell = False, timeout = -1)

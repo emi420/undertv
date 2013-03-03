@@ -1,7 +1,0 @@
-Under TV
-
-TODO:
-
-- Get duration of each video so it can be marked as 'watched'
-- If a video is marked as 'watched', delete it and download the next item in the playlist
-

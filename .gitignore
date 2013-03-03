@@ -1,6 +1,6 @@
 omxplayer.log
 omxplayer.old.log
-content
+content/download/*
 *.pyc
 .gitignore
 *.bkp

@@ -133,12 +133,31 @@ class TV:
         print "Watched!"
         video = json.loads(self.video['data'])
         video['watched'] = True
+        
+        file_path = self.content.source + str(self.current[0]) + "/" + video['name'] + ".flv"
+        renamed_file_path = self.content.source + str(self.current[0]) + "/" + video['name'] + "-watched.flv"
+        if os.path.exists(file_path):
+            os.rename(file_path, renamed_file_path)
+            # FIXME CHECK: run ContentDownloader as a background process
+            #cdl = ContentDownloader()
+            #cdl.start()
+        
+        # FIXME CHECK: delete original file and create a empty renamed file
+        # os.remove(file_path)
+        # f = open(renamed_file_path, 'w')
+        # f.write('')
+        # f.close()
+        
         self.content.data.update(self.video['id'], json.dumps(video))
-        self.next_ch()
+        self.current[1] = self.current[1] + 1
+        self._play()
     
     def _player(self, path, source):
     
         video = json.loads(self.video['data'])
+        
+        print 'Video name: ' + video['name']
+        print 'Video watched: ' + str(video['watched'])
 
         if video['watched'] == False:
 
@@ -165,7 +184,9 @@ class TV:
             self.proc = Popen(['omxplayer','-l ' + str(time), file_path], stdin = PIPE, stdout = PIPE, stderr = PIPE)
             
         else:            
-            self.next_ch()
+            self.current[1] = self.current[1] + 1
+            print "This video was watched, play next, #" + str(self.current);
+            self._play()
 
     def _fullDownload(self, video_id):
         p = Popen(['youtube-dl', "http://youtube.com/watch?v=" + video_id])
