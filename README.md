@@ -39,4 +39,4 @@ I'm developing a mobile app for using as a remote control ;)
 
 You may use any Under TV project under the terms of the GNU General Public License (GPL) Version 3.
 
-(c) 2012 Emilio Mariscal
+(c) 2013 Emilio Mariscal
