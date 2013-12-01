@@ -4,5 +4,4 @@ content/download/*
 *.pyc
 *.bkp
 *.DS_Store
-models.py
 data.sql3
