@@ -1,13 +1,13 @@
-* Data models (models.py)
-* Refactoring (w/ data models)
-* Download new content when a video was watched
+
+
+* Content providing
 * Fullscreen (no console text)
-* Support for multiple video extensions (flv, mp4, etc..)
+
 * Bugfixes for volume controls
 * Wireless setup (via ethernet cable connection, like a printer)
 * Remote controller mobile app
-* Web interface for channels setup (playlists)
-* Use video time, not video quantity, for each channel
+* Web interface for content management
+
 * Load TV on system start
 * Splash screen on system boot, TV power on/off, next/prev channel
 * Working demo

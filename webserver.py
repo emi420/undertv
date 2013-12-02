@@ -9,12 +9,18 @@
  Module description:
  
     API Server
+    
+    Create a simple web server.
  
 '''
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from tv import TV
 
+'''
+APIServer create a simple web server to control
+the TV using HTTP requests
+'''
 class APIServer(BaseHTTPRequestHandler):
 
     tv = TV()

@@ -1,8 +1,6 @@
 omxplayer.log
 omxplayer.old.log
-content/download/*
+content
 *.pyc
-*.bkp
 *.DS_Store
-models.py
 data.sql3

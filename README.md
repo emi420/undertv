@@ -15,23 +15,19 @@ Edit settings.py file
 
 2) Install sample data:
 
-You can edit sampledata.py and add your own YouTube playlists
+Copy video files on a 'content' folder and initialize it
 
-$ python sampledata.py
+$ python createdata.py content
 
-3) Download content
-
-$ python contentdownloader.py
-
-4) Run server
+3) Run server
 
 $ python webserver.py
 
-5) Run commands from any browser:
+4) Run commands from any browser:
 
-http://< Raspberry PI IP address >/power
-http://< Raspberry PI IP address >/next_ch
-http://< Raspberry PI IP address >/prev_ch
+http://<IP_address>/power
+http://<IP_address>/next_ch
+http://<IP_address>/prev_ch
 
 I'm developing a mobile app for using as a remote control ;)
 
