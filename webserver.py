@@ -30,23 +30,14 @@ class APIServer(BaseHTTPRequestHandler):
         self._setHeaders() 
                
         path = self.path        
+        if path == "/random":
+            APIServer.tv.random()
+
         if path == "/next_ch":
             APIServer.tv.next_ch()
 
         elif path == "/prev_ch":
             APIServer.tv.prev_ch()
-
-        elif path == "/vol_up":
-            APIServer.tv.vol_up()
-
-        elif path == "/vol_down":
-            APIServer.tv.vol_down()
-
-        elif path == "/stop":
-            APIServer.tv.stop()
-
-        elif path == "/power":
-            APIServer.tv.power()
         
         self.wfile.write("1")
            
