@@ -37,6 +37,4 @@ class TV:
     def prev_ch(self):
         print "Prev channel"
             
-    def stop(self):
-        self.timer.cancel()
                     

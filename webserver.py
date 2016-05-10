@@ -60,7 +60,7 @@ def main():
     
    except KeyboardInterrupt:
         print '^C received, shutting down server'
-        APIServer.tv.stop()
+        os.system('killall omxplayer.bin')
         server.socket.close()
 
 if __name__ == '__main__':
