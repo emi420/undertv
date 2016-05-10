@@ -16,6 +16,7 @@
 
 import string
 import os, sys, signal
+import random
 from settings import settings
 
 class TV:
@@ -24,7 +25,7 @@ class TV:
         self.directory = settings['VIDEO_PATH']
     
     def random(self):
-        print "Next channel"
+        print "Random"
         episode = random.choice(os.listdir(self.directory))
         cmd = "nohup omxplayer -b -o hdmi "+"'"+self.directory+episode+"' &"
         os.system('killall omxplayer.bin')
