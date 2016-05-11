@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta charset="utf-8">
+	<title>UnderTV</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="">
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		body {
+			background: #fed41d;
+		}
+		html, body {height: 100%;}
+		.btn:hover {
+			opacity: .8;
+		}
+		.btn {
+			width: 100%;
+			max-width: 299px;
+			max-height: 307px;
+			height: 100%;
+			background: #fed41d;
+			background-size: cover;
+			background-repeat: no-repeat;
+			color: #fff;
+			font-weight: bold;
+			font-size: 100px;
+			display: block;
+			text-decoration: none;
+			font-family: arial;
+			text-align: center;
+			margin: 50px auto;
+		}
+		.iframe {
+			display: none;
+		}
+	</style>
+
+</head>
+
+<body>
+	<a id="btn" class="btn" href="/random" target="iframe">&nbsp;</a>
+	<iframe class="iframe" id="iframe" name="iframe" src=""></iframe>
+	<script type="text/javascript">
+		var url = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+		document.getElementById("btn").style.backgroundImage = 'url("' + url + "/donut.jpg" + '")';
+	</script>
+</body>
+
+</html>

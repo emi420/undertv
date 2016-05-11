@@ -16,6 +16,8 @@
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from tv import TV
+import os
+from os import curdir, sep
 
 '''
 APIServer create a simple web server to control
@@ -26,29 +28,35 @@ class APIServer(BaseHTTPRequestHandler):
     tv = TV()
 
     def do_GET(self):
-
-        self._setHeaders() 
                
-        path = self.path        
-        if path == "/random":
-            APIServer.tv.random()
-
-        if path == "/next_ch":
-            APIServer.tv.next_ch()
-
-        elif path == "/prev_ch":
-            APIServer.tv.prev_ch()
-        
-        self.wfile.write("1")
-           
-        return
-        
-    def _setHeaders(self):
         self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.send_header('Allow', 'GET, OPTIONS')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
+
+        print self.path
+
+        if self.path == "/":
+            self.path = "/index.html"
+
+        if self.path.endswith(".png"):
+            self.send_header("Content-type", "image/png")
+        elif self.path.endswith(".jpg"):           
+            self.send_header("Content-type", "image/jpeg")
+        else:           
+            self.send_header("Content-type", "text/html")
+
+        if self.path == "/random":
+            APIServer.tv.random()
+            self.end_headers()
+            return
+        elif self.path.endswith(".png") or self.path.endswith(".jpg") or self.path.endswith(".html"):
+            try:
+                f = open(curdir + sep + self.path, 'r') 
+                self.end_headers()
+                self.wfile.write(f.read())
+                f.close()
+
+                return
+            except IOError:
+                self.send_error(404,'File Not Found: %s' % self.path)        
 
 
 def main():
