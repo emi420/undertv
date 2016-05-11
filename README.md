@@ -23,7 +23,7 @@ $ sudo python webserver.py
 
 Open this from any browser:
 
-http://IP_address/index.html
+http://IP_address/
 
 Or send the 'random' command:
 
