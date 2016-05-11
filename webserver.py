@@ -29,34 +29,36 @@ class APIServer(BaseHTTPRequestHandler):
 
     def do_GET(self):
                
-        self.send_response(200)
+        try:
+            if self.path == "/":
+                self.path = "/index.html"
 
-        print self.path
+            if self.path.endswith(".png"):
+                mime = "image/png"
 
-        if self.path == "/":
-            self.path = "/index.html"
+            elif self.path.endswith(".jpg"):           
+                mime = "image/jpeg"
 
-        if self.path.endswith(".png"):
-            self.send_header("Content-type", "image/png")
-        elif self.path.endswith(".jpg"):           
-            self.send_header("Content-type", "image/jpeg")
-        else:           
-            self.send_header("Content-type", "text/html")
+            else:           
+                mime = "text/html"
 
-        if self.path == "/random":
-            APIServer.tv.random()
+            self.send_response(200)
+            self.send_header("Content-type", mime)
+            self.send_header('Allow', 'GET, OPTIONS')
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
-            return
-        elif self.path.endswith(".png") or self.path.endswith(".jpg") or self.path.endswith(".html"):
-            try:
+
+            if self.path == "/random":
+                APIServer.tv.random()
+            elif self.path.endswith(".png") or self.path.endswith(".jpg") or self.path.endswith(".html"):
                 f = open(curdir + sep + self.path, 'r') 
-                self.end_headers()
                 self.wfile.write(f.read())
                 f.close()
 
-                return
-            except IOError:
-                self.send_error(404,'File Not Found: %s' % self.path)        
+            return
+
+        except IOError:
+            self.send_error(404,'File Not Found: %s' % self.path)        
 
 
 def main():
