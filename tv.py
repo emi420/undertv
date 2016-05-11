@@ -21,12 +21,6 @@ from pyomxplayer import OMXPlayer
 from time import sleep
 import threading
 
-def positionChecker(video, waitingvideo):
-    while True:
-        sleep(0.05)
-        if video and video.finished and not waitingvideo:
-            waitingvideo = OMXPlayer(settings['VIDEO_WAITING_PATH'], '-o hdmi --loop', start_playback=True) 
-
 
 class TV:
 
@@ -36,14 +30,13 @@ class TV:
         self.waitingvideo = None
         self.video = None
         self.files = []
-        self.positionChecker_Thread = None
         for file in os.listdir(self.directory):
             if file.endswith(".mp4"):
                 self.files.append(file)
 
-        self.positionChecker_Thread = threading.Thread(target=positionChecker, args=(self.video,self.waitingvideo))
-        self.positionChecker_Thread.daemon = True                           
-        self.positionChecker_Thread.start()                                 
+        T = threading.Thread(target=self.positionChecker)
+        T.daemon = True                           
+        T.start()                                 
 
 
     def random(self):
@@ -53,10 +46,31 @@ class TV:
         episode = random.choice(self.files)
         self.playpath = self.directory + episode
         print "Play " + self.playpath
+        if self.video:
+            self.video.stop()
         if self.waitingvideo:
             self.waitingvideo.stop()
-            self.waitingvideo = None
         self.video = OMXPlayer(self.playpath,  '-o hdmi', start_playback=True) 
 
+    def stop(self):
+        self.video.stop()
+        if self.playpath:
+            cmd = 'pkill -9 -f "/usr/bin/omxplayer.bin -s ' + self.playpath + ' -o hdmi"'
+            os.system(cmd)
 
 
+    def positionChecker(self):
+        self.waitingvideo = OMXPlayer(settings['VIDEO_WAITING_PATH'], '-o hdmi --loop', start_playback=True) 
+        while True:
+            if self.video:
+                if self.video.finished:
+                    self.video = None
+                if self.waitingvideo and not self.waitingvideo.paused:
+                    self.waitingvideo.stop()
+                    self.waitingvideo = None
+
+            else:
+                if not self.waitingvideo:
+                    self.waitingvideo = OMXPlayer(settings['VIDEO_WAITING_PATH'], '-o hdmi --loop', start_playback=True) 
+
+            sleep(0.05)

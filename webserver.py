@@ -50,6 +50,15 @@ class APIServer(BaseHTTPRequestHandler):
 
             if self.path == "/random":
                 APIServer.tv.random()
+            elif APIServer.tv.video:
+                if self.path == "/stop":
+                    APIServer.tv.stop()
+                elif self.path == "/pause":
+                    APIServer.tv.video.toggle_pause()
+                elif self.path == "/skip_ahead":
+                    APIServer.tv.video.skip_ahead()
+                elif self.path == "/skip_back":
+                    APIServer.tv.video.skip_back()
             elif self.path.endswith(".png") or self.path.endswith(".jpg") or self.path.endswith(".html"):
                 f = open(curdir + sep + self.path, 'r') 
                 self.wfile.write(f.read())
