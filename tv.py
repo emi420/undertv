@@ -23,11 +23,9 @@ import threading
 
 def positionChecker(video, waitingvideo):
     while True:
-        sleep(1)
-        if  video.finished:
-            sleep(2)
+        sleep(0.05)
+        if video and video.finished and not waitingvideo:
             waitingvideo = OMXPlayer(settings['VIDEO_WAITING_PATH'], '-o hdmi --loop', start_playback=True) 
-            break
 
 
 class TV:
@@ -38,9 +36,15 @@ class TV:
         self.waitingvideo = None
         self.video = None
         self.files = []
+        self.positionChecker_Thread = None
         for file in os.listdir(self.directory):
             if file.endswith(".mp4"):
                 self.files.append(file)
+
+        self.positionChecker_Thread = threading.Thread(target=positionChecker, args=(self.video,self.waitingvideo))
+        self.positionChecker_Thread.daemon = True                           
+        self.positionChecker_Thread.start()                                 
+
 
     def random(self):
         if self.playpath:
@@ -51,13 +55,8 @@ class TV:
         print "Play " + self.playpath
         if self.waitingvideo:
             self.waitingvideo.stop()
+            self.waitingvideo = None
         self.video = OMXPlayer(self.playpath,  '-o hdmi', start_playback=True) 
-
-        thread = threading.Thread(target=positionChecker, args=(self.video,self.waitingvideo))
-        thread.daemon = True                           
-        thread.start()                                 
-
-        return 1
 
 
 
