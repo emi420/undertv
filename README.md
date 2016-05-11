@@ -23,11 +23,11 @@ $ sudo python webserver.py
 
 Open this from any browser:
 
-http://<IP_address>/index.html
+http://IP_address/index.html
 
 Or send the 'random' command:
 
-http://<IP_address>/random
+http://IP_address/random
 
 ## License
 
