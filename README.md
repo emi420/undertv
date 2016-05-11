@@ -5,7 +5,7 @@ A television box for the internet citizen
 ## Requirements
 
 * This project was designed to run on a Raspberry PI
-* You will need to install omxplayer
+* You will need to install omxplayer and pyomxplayer with pexpect and ptyprocess
 
 ## How to run and test the project
 
@@ -19,13 +19,15 @@ Copy video files on the 'videos' folder
 
 3) Run server
 
-$ python webserver.py
+$ sudo python webserver.py
 
-Run commands from any browser:
+Open this from any browser:
+
+http://<IP_address>/index.html
+
+Or send the 'random' command:
 
 http://<IP_address>/random
-http://<IP_address>/next_ch
-http://<IP_address>/prev_ch
 
 ## License
 
