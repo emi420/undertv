@@ -8,24 +8,25 @@
  
  Module description:
  
-    API Server
+    Web Server
     
-    Create a simple web server.
+    Simple web server.
  
 '''
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from tv import TV
-import os
+from settings import settings
 from os import curdir, sep
+import os
+
+tv = TV()
 
 '''
 APIServer create a simple web server to control
 the TV using HTTP requests
 '''
 class APIServer(BaseHTTPRequestHandler):
-
-    tv = TV()
 
     def do_GET(self):
                
@@ -48,21 +49,32 @@ class APIServer(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
 
-            if self.path == "/random":
-                APIServer.tv.random()
-            elif APIServer.tv.video:
-                if self.path == "/stop":
-                    APIServer.tv.stop()
-                elif self.path == "/pause":
-                    APIServer.tv.video.toggle_pause()
-                elif self.path == "/skip_ahead":
-                    APIServer.tv.video.skip_ahead()
-                elif self.path == "/skip_back":
-                    APIServer.tv.video.skip_back()
-            elif self.path.endswith(".png") or self.path.endswith(".jpg") or self.path.endswith(".html"):
+            if self.path.endswith(".png") or self.path.endswith(".jpg"):
                 f = open(curdir + sep + self.path, 'r') 
                 self.wfile.write(f.read())
                 f.close()
+            elif self.path.endswith(".html"):
+                f = open(curdir + sep + "index.html", 'r') 
+                self.wfile.write(f.read())
+                f.close()
+
+            elif self.path == "/random":
+                tv.random()
+                self.wfile.write("1")
+
+            elif tv.video:
+                if self.path == "/stop":
+                    tv.stop()
+                    self.wfile.write("1")
+                elif self.path == "/pause":
+                    tv.video.toggle_pause()
+                    self.wfile.write("1")
+                elif self.path == "/skip_ahead":
+                    tv.video.skip_ahead()
+                    self.wfile.write("1")
+                elif self.path == "/skip_back":
+                    self.wfile.write("1")
+                    tv.video.skip_back()
 
             return
 
@@ -73,8 +85,10 @@ class APIServer(BaseHTTPRequestHandler):
 def main():
   
    try:
+        if settings['CONTINUOUS_PLAYBACK']:
+            tv.random()
         server = HTTPServer(('', 80), APIServer)
-        print 'Started Under TV httpserver'
+        print 'Started Under TV httpserver on port 80'
         server.serve_forever()
     
    except KeyboardInterrupt:
