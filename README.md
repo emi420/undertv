@@ -25,9 +25,13 @@ Open this from any browser:
 
 http://IP_address/
 
-Or send the 'random' command:
+Or send commands:
 
-http://IP_address/random
+* http://IP_address/random
+* http://IP_address/pause
+* http://IP_address/stop
+* http://IP_address/skip_ahead
+* http://IP_address/skip_back
 
 ## License
 
