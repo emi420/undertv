@@ -21,7 +21,7 @@ Copy video files on the 'videos' folder
 
 $ sudo python webserver.py
 
-Open this from any browser:
+Open this from any browser
 
 http://IP_address/
 
