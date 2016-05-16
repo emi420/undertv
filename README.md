@@ -13,7 +13,7 @@ A television box for the internet citizen
 
 Edit settings.py file
 
-2) Copy video files:
+2) Copy video files
 
 Copy video files on the 'videos' folder
 
@@ -25,7 +25,7 @@ Open this from any browser:
 
 http://IP_address/
 
-Or send commands:
+Or send commands
 
 * http://IP_address/random
 * http://IP_address/pause
