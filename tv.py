@@ -29,6 +29,7 @@ class TV:
         self.waitingvideo = None
         self.video = None
         self.files = []
+
         for file in os.listdir(self.directory):
             if file.endswith(".mp4"):
                 self.files.append(file)
@@ -43,7 +44,10 @@ class TV:
         print "Play " + self.playpath
         if self.video:
             self.stop()
-        self.video = OMXPlayer(self.playpath,  '-o hdmi', start_playback=True) 
+        self.video = OMXPlayer(self.playpath,  '-o hdmi -b', start_playback=True) 
+
+    def waiting(self):
+        self.waitingvideo = OMXPlayer(settings['VIDEO_WAITING_PATH'], '-o hdmi -b', start_playback=True) 
 
     def stop(self):
         self.video.stop()
@@ -52,8 +56,7 @@ class TV:
         os.system(cmd)
 
     def positionChecker(self):
-        if not settings['CONTINUOUS_PLAYBACK']:
-            self.waitingvideo = OMXPlayer(settings['VIDEO_WAITING_PATH'], '-o hdmi --loop', start_playback=True) 
+        if not settings['CONTINUOUS_PLAYBACK']:            
             while True:
                 if self.video:
                     if self.video.finished:
@@ -64,15 +67,15 @@ class TV:
 
                 else:
                    if not self.waitingvideo:
-                        self.waitingvideo = OMXPlayer(settings['VIDEO_WAITING_PATH'], '-o hdmi --loop', start_playback=True) 
+                        self.waitingvideo = OMXPlayer(settings['VIDEO_WAITING_PATH'], '-o hdmi -b --loop', start_playback=True) 
 
                 sleep(0.5)
         else:
 
             while True:
                 if self.video and self.video.finished:
-                        self.video = None
-                        self.random()
+                    self.video = None
+                    self.random()
                 sleep(0.5)
 
 

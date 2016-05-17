@@ -18,7 +18,6 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from tv import TV
 from settings import settings
 from os import curdir, sep
-import os
 
 tv = TV()
 
